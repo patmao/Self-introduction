@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,126 +10,285 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            gap: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #f0f0f0;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            font-family: 'Arial', sans-serif;
+            color: #fff;
         }
+        
+        .game-container {
+            position: relative;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
         canvas {
-            border: 1px solid black;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background-color: rgba(0, 0, 0, 0.4);
+            width: 300px;
+            height: 300px;
         }
+
+        .game-layout {
+            display: flex;
+            gap: 20px;
+            align-items: start;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .score-display {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
         button {
-            margin: 10px;
-            padding: 10px 20px;
+            padding: 12px 24px;
             font-size: 16px;
             cursor: pointer;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            border: none;
+            color: white;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .game-over h2 {
+            color: #ff4444;
+            font-size: 32px;
+            margin: 0 0 20px 0;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .food {
+            animation: pulse 1s infinite;
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            color: white;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .key-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .key-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .key {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 24px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+
+        .key:hover {
+            transform: scale(1.1);
+        }
+
+        .key span {
+            font-size: 12px;
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="400" height="400"></canvas>
-    <button id="exitButton">Exit</button>
-    <button id="replayButton" style="display:none;">Replay</button>
-
+    <div class="game-layout">
+        <div class="instructions">
+            <div class="key-controls">
+            <div class="key">⬆️<span>Up</span></div>
+            <div class="key-row">
+                <div class="key">⬅️<span>Left</span></div>
+                <div class="key">⬇️<span>Down</span></div>
+                <div class="key">➡️<span>Right</span></div>
+            </div>
+        </div>
+    </div>
+    <div class="game-container">
+        <div class="score-display">Score: <span id="scoreValue">0</span></div>
+        <canvas id="gameCanvas" width="300" height="300"></canvas>
+        <div class="game-over" id="gameOverScreen">
+            <h2>Game Over!</h2>
+            <p>Final Score: <span id="finalScore">0</span></p>
+        </div>
+    </div>
+    <div class="controls">
+        <button id="exitButton">Exit Game</button>
+        <button id="replayButton" style="display:none;">Play Again</button>
+    </div>
 
     <script>
-        // Get canvas and context
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('scoreValue');
         const exitButton = document.getElementById('exitButton');
         const replayButton = document.getElementById('replayButton');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const finalScoreDisplay = document.getElementById('finalScore');
 
-        // Grid size and tile size (20x20 grid)
         const gridSize = 20;
         const tileSize = canvas.width / gridSize;
 
-        // Snake initial position and properties
-        let snake = [
-            { x: 10, y: 10 } // Starting position (middle of grid)
-        ];
-        let dx = 0; // Direction x
-        let dy = 0; // Direction y
-
-        // Food initial position
-        let food = {
-            x: Math.floor(Math.random() * gridSize),
-            y: Math.floor(Math.random() * gridSize)
-        };
-
-        // Game variables
+        let snake = [{ x: 10, y: 10 }];
+        let dx = 0;
+        let dy = 0;
+        let food = randomFoodPosition();
         let score = 0;
         let gameOver = false;
 
-        // Draw the game board
+        function randomFoodPosition() {
+            return {
+                x: Math.floor(Math.random() * gridSize),
+                y: Math.floor(Math.random() * gridSize)
+            };
+        }
+
         function drawGame() {
-            // Move snake
             if (!gameOver) {
                 const head = { x: snake[0].x + dx, y: snake[0].y + dy };
                 snake.unshift(head);
 
-                // Check if snake ate food
                 if (head.x === food.x && head.y === food.y) {
                     score += 1;
-                    food = {
-                        x: Math.floor(Math.random() * gridSize),
-                        y: Math.floor(Math.random() * gridSize)
-                    };
+                    scoreDisplay.textContent = score;
+                    food = randomFoodPosition();
                 } else {
-                    snake.pop(); // Remove tail if no food eaten
+                    snake.pop();
                 }
 
-                // Check collision with walls
                 if (head.x < 0 || head.x >= gridSize || head.y < 0 || head.y >= gridSize) {
-                    gameOver = true;
+                    endGame();
                 }
 
-                // Check collision with self
                 for (let i = 1; i < snake.length; i++) {
                     if (head.x === snake[i].x && head.y === snake[i].y) {
-                        gameOver = true;
+                        endGame();
                     }
                 }
             }
 
-            // Clear canvas
-            ctx.fillStyle = 'white';
+            // Clear canvas with gradient
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, 'rgba(0, 0, 0, 0.4)');
+            gradient.addColorStop(1, 'rgba(0, 0, 0, 0.6)');
+            ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw snake
-            ctx.fillStyle = 'green';
-            snake.forEach(segment => {
-                ctx.fillRect(segment.x * tileSize, segment.y * tileSize, tileSize - 2, tileSize - 2);
+            // Draw snake with gradient
+            snake.forEach((segment, index) => {
+                const segmentGradient = ctx.createRadialGradient(
+                    segment.x * tileSize + tileSize/2,
+                    segment.y * tileSize + tileSize/2,
+                    0,
+                    segment.x * tileSize + tileSize/2,
+                    segment.y * tileSize + tileSize/2,
+                    tileSize/2
+                );
+                segmentGradient.addColorStop(0, '#50C878');
+                segmentGradient.addColorStop(1, '#2E8B57');
+                ctx.fillStyle = segmentGradient;
+                ctx.beginPath();
+                ctx.roundRect(
+                    segment.x * tileSize,
+                    segment.y * tileSize,
+                    tileSize - 2,
+                    tileSize - 2,
+                    index === 0 ? 8 : 4
+                );
+                ctx.fill();
             });
 
-            // Draw food
-            ctx.fillStyle = 'red';
-            ctx.fillRect(food.x * tileSize, food.y * tileSize, tileSize - 2, tileSize - 2);
+            // Draw food with glow effect
+            ctx.fillStyle = '#FF4444';
+            ctx.shadowColor = '#FF4444';
+            ctx.shadowBlur = 15;
+            ctx.beginPath();
+            ctx.arc(
+                food.x * tileSize + tileSize/2,
+                food.y * tileSize + tileSize/2,
+                tileSize/2 - 2,
+                0,
+                Math.PI * 2
+            );
+            ctx.fill();
+            ctx.shadowBlur = 0;
 
-            // Draw score
-            ctx.fillStyle = 'black';
-            ctx.font = '20px Arial';
-            ctx.fillText(`Score: ${score}`, 10, 20);
-
-            // Game over message
-            if (gameOver) {
-                ctx.fillStyle = 'black';
-                ctx.font = '30px Arial';
-                ctx.fillText('Game Over', canvas.width / 2 - 80, canvas.height / 2);
-
-                // Draw replay button
-                ctx.fillStyle = '#4CAF50';
-                ctx.fillRect(canvas.width / 2 - 60, canvas.height / 2 + 20, 120, 40);
-                ctx.fillStyle = 'white';
-                ctx.fillText('Replay', canvas.width / 2 - 35, canvas.height / 2 + 45);
-                replayButton.style.display = 'block';
-                return; // Stop the game loop
+            if (!gameOver) {
+                setTimeout(drawGame, 100);
             }
-            replayButton.style.display = 'none';
-            // Continue game loop
-            setTimeout(drawGame, 100); // Adjust speed (lower = faster)
         }
 
-        // Handle keyboard input
+        function endGame() {
+            gameOver = true;
+            gameOverScreen.style.display = 'block';
+            finalScoreDisplay.textContent = score;
+            replayButton.style.display = 'block';
+        }
+
         document.addEventListener('keydown', (event) => {
+            if (gameOver) return;
+            
             switch (event.key) {
                 case 'ArrowUp':
                     if (dy === 0) { dx = 0; dy = -1; }
@@ -145,17 +305,15 @@
             }
         });
 
-        // Start the game
-        drawGame();
-
-
         exitButton.addEventListener('click', () => {
-            window.location.href = '/'; // Redirect to home page
+            window.location.href = '/';
         });
 
         replayButton.addEventListener('click', () => {
             location.reload();
         });
+
+        drawGame();
     </script>
 </body>
 </html>
