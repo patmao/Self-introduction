@@ -13,7 +13,7 @@
             background: #f0f0f0;
         }
         .tech-container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
         }
         .tech-card {
@@ -22,8 +22,10 @@
             margin: 15px 0;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            position: relative;
-            overflow: hidden;
+            transition: transform 0.3s;
+        }
+        .tech-card:hover {
+            transform: translateY(-5px);
         }
         .launch-item {
             background: white;
@@ -31,6 +33,13 @@
             margin: 10px 0;
             border-radius: 8px;
             border-left: 5px solid #3498db;
+        }
+        .company-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         .back-btn {
             display: inline-block;
@@ -46,6 +55,13 @@
             padding: 20px;
             font-style: italic;
         }
+        .stock-info {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -53,42 +69,96 @@
         <a href="/" class="back-btn">← Back</a>
         <h1>Technology Updates</h1>
         
-        <h2>Upcoming SpaceX Launches</h2>
-        <div id="launches">
-            <div class="loading">Loading launches...</div>
+        <div class="company-section">
+            <h2>SpaceX Launches</h2>
+            <div id="spacex-launches">
+                <div class="loading">Loading SpaceX launches...</div>
+            </div>
         </div>
 
-        <h2>Latest Tech News</h2>
-        <div id="tech-news">
-            <div class="loading">Loading news...</div>
+        <div class="company-section">
+            <h2>Tesla Updates</h2>
+            <div id="tesla-news">
+                <div class="loading">Loading Tesla updates...</div>
+            </div>
+        </div>
+
+        <div class="company-section">
+            <h2>Microsoft Developer News</h2>
+            <div id="microsoft-news">
+                <div class="loading">Loading Microsoft updates...</div>
+            </div>
+        </div>
+
+        <div class="company-section">
+            <h2>Latest Tech News</h2>
+            <div id="tech-news">
+                <div class="loading">Loading news...</div>
+            </div>
         </div>
     </div>
 
     <script>
         // Fetch SpaceX launches
-        async function fetchLaunches() {
+        async function fetchSpaceXLaunches() {
             try {
                 const response = await fetch('https://api.spacexdata.com/v4/launches/upcoming');
                 const launches = await response.json();
-                const launchesHtml = launches.slice(0, 5).map(launch => `
+                const launchesHtml = launches.slice(0, 3).map(launch => `
                     <div class="launch-item">
                         <h3>${launch.name}</h3>
                         <p>Date: ${new Date(launch.date_local).toLocaleDateString()}</p>
                         <p>${launch.details || 'Details pending...'}</p>
                     </div>
                 `).join('');
-                document.getElementById('launches').innerHTML = launchesHtml;
+                document.getElementById('spacex-launches').innerHTML = launchesHtml;
             } catch (error) {
-                document.getElementById('launches').innerHTML = '<p>Error loading launches</p>';
+                document.getElementById('spacex-launches').innerHTML = '<p>Error loading SpaceX launches</p>';
             }
         }
 
-        // Fetch Tech News using NewsAPI
+        // Fetch Tesla News using Space Flight News API (filtering for Tesla)
+        async function fetchTeslaNews() {
+            try {
+                const response = await fetch('https://api.spaceflightnewsapi.net/v4/articles?title_contains=Tesla&limit=3');
+                const data = await response.json();
+                const newsHtml = data.results.map(article => `
+                    <div class="tech-card">
+                        <h3>${article.title}</h3>
+                        <p>${article.summary}</p>
+                        <a href="${article.url}" target="_blank">Read more</a>
+                    </div>
+                `).join('');
+                document.getElementById('tesla-news').innerHTML = newsHtml;
+            } catch (error) {
+                document.getElementById('tesla-news').innerHTML = '<p>Error loading Tesla news</p>';
+            }
+        }
+
+        // Fetch Microsoft News using Space Flight News API
+        async function fetchMicrosoftNews() {
+            try {
+                const response = await fetch('https://api.spaceflightnewsapi.net/v4/articles?title_contains=Microsoft&limit=3');
+                const data = await response.json();
+                const newsHtml = data.results.map(article => `
+                    <div class="tech-card">
+                        <h3>${article.title}</h3>
+                        <p>${article.summary}</p>
+                        <a href="${article.url}" target="_blank">Read more</a>
+                    </div>
+                `).join('');
+                document.getElementById('microsoft-news').innerHTML = newsHtml;
+            } catch (error) {
+                document.getElementById('microsoft-news').innerHTML = '<p>Error loading Microsoft news</p>';
+            }
+        }
+
+        // Fetch General Tech News
         async function fetchTechNews() {
             try {
                 const response = await fetch('https://api.spaceflightnewsapi.net/v4/articles?limit=5');
-                const articles = await response.json();
-                const newsHtml = articles.results.map(article => `
+                const data = await response.json();
+                const newsHtml = data.results.map(article => `
                     <div class="tech-card">
                         <h3>${article.title}</h3>
                         <p>${article.summary}</p>
@@ -97,12 +167,14 @@
                 `).join('');
                 document.getElementById('tech-news').innerHTML = newsHtml;
             } catch (error) {
-                document.getElementById('tech-news').innerHTML = '<p>Error loading news</p>';
+                document.getElementById('tech-news').innerHTML = '<p>Error loading tech news</p>';
             }
         }
 
-        // Initialize
-        fetchLaunches();
+        // Initialize all fetches
+        fetchSpaceXLaunches();
+        fetchTeslaNews();
+        fetchMicrosoftNews();
         fetchTechNews();
     </script>
 </body>
