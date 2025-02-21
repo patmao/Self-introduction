@@ -231,20 +231,27 @@
             function toggleTheme() {
                 const root = document.documentElement;
                 const themeSwitch = document.querySelector(".theme-switch");
+                const container = document.querySelector(".container");
 
                 if (
                     root.style.getPropertyValue("--primary-color") === "#2c3e50"
                 ) {
+                    // Dark theme
                     root.style.setProperty("--primary-color", "#34495e");
                     root.style.setProperty("--secondary-color", "#2980b9");
                     root.style.setProperty("--text-color", "#fff");
                     document.body.style.backgroundColor = "#1a1a1a";
+                    container.style.backgroundColor = "#2c3e50";
+                    container.style.color = "#fff";
                     themeSwitch.textContent = "☀️";
                 } else {
+                    // Light theme
                     root.style.setProperty("--primary-color", "#2c3e50");
                     root.style.setProperty("--secondary-color", "#3498db");
                     root.style.setProperty("--text-color", "#333");
                     document.body.style.backgroundColor = "#f8f9fa";
+                    container.style.backgroundColor = "white";
+                    container.style.color = "#333";
                     themeSwitch.textContent = "🌙";
                 }
             }
