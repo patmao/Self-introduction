@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Sci-Fi Reading List</title>
+    <title>Sci-Fi Book Explorer</title>
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -22,11 +22,16 @@
             margin: 15px 0;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transform: translateX(0);
-            transition: transform 0.3s;
+            display: flex;
+            gap: 20px;
         }
-        .book-card:hover {
-            transform: translateX(10px);
+        .book-cover {
+            width: 128px;
+            height: 192px;
+            object-fit: cover;
+        }
+        .book-info {
+            flex: 1;
         }
         .back-btn {
             display: inline-block;
@@ -37,24 +42,68 @@
             border-radius: 5px;
             margin-bottom: 20px;
         }
+        .search-box {
+            width: 100%;
+            padding: 10px;
+            margin: 20px 0;
+            border: 2px solid #3498db;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
     <div class="book-list">
         <a href="/" class="back-btn">← Back</a>
-        <h1>My Favorite Sci-Fi Books</h1>
-        <div class="book-card">
-            <h3>Dune</h3>
-            <p>A masterpiece of political intrigue and ecological science fiction.</p>
-        </div>
-        <div class="book-card">
-            <h3>Foundation</h3>
-            <p>Asimov's epic tale of galactic civilization and psychohistory.</p>
-        </div>
-        <div class="book-card">
-            <h3>Neuromancer</h3>
-            <p>The cyberpunk classic that predicted many aspects of today's internet.</p>
-        </div>
+        <h1>Sci-Fi Book Explorer</h1>
+        
+        <input type="text" 
+               class="search-box" 
+               placeholder="Search for sci-fi books..." 
+               id="searchInput">
+
+        <div id="bookResults"></div>
     </div>
+
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const bookResults = document.getElementById('bookResults');
+
+        async function searchBooks(query) {
+            try {
+                const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=subject:science+fiction+${query}&maxResults=10`);
+                const data = await response.json();
+                
+                bookResults.innerHTML = data.items.map(book => {
+                    const { volumeInfo } = book;
+                    return `
+                        <div class="book-card">
+                            <img src="${volumeInfo.imageLinks?.thumbnail || 'https://via.placeholder.com/128x192'}" 
+                                 alt="${volumeInfo.title}" 
+                                 class="book-cover">
+                            <div class="book-info">
+                                <h3>${volumeInfo.title}</h3>
+                                <p>By ${volumeInfo.authors?.join(', ') || 'Unknown Author'}</p>
+                                <p>${volumeInfo.description?.substring(0, 200)}...</p>
+                                <a href="${volumeInfo.previewLink}" target="_blank">View on Google Books</a>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                bookResults.innerHTML = '<p>Error loading books</p>';
+            }
+        }
+
+        let debounceTimer;
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                searchBooks(e.target.value);
+            }, 500);
+        });
+
+        // Initial search
+        searchBooks('best');
+    </script>
 </body>
 </html>
