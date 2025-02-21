@@ -16,15 +16,26 @@
         canvas {
             border: 1px solid black;
         }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <button id="exitButton">Exit</button>
+    <button id="replayButton" style="display:none;">Replay</button>
+
 
     <script>
         // Get canvas and context
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+        const exitButton = document.getElementById('exitButton');
+        const replayButton = document.getElementById('replayButton');
 
         // Grid size and tile size (20x20 grid)
         const gridSize = 20;
@@ -102,9 +113,16 @@
                 ctx.fillStyle = 'black';
                 ctx.font = '30px Arial';
                 ctx.fillText('Game Over', canvas.width / 2 - 80, canvas.height / 2);
+
+                // Draw replay button
+                ctx.fillStyle = '#4CAF50';
+                ctx.fillRect(canvas.width / 2 - 60, canvas.height / 2 + 20, 120, 40);
+                ctx.fillStyle = 'white';
+                ctx.fillText('Replay', canvas.width / 2 - 35, canvas.height / 2 + 45);
+                replayButton.style.display = 'block';
                 return; // Stop the game loop
             }
-
+            replayButton.style.display = 'none';
             // Continue game loop
             setTimeout(drawGame, 100); // Adjust speed (lower = faster)
         }
@@ -129,6 +147,15 @@
 
         // Start the game
         drawGame();
+
+
+        exitButton.addEventListener('click', () => {
+            location.reload(); // Simple exit - reload the page
+        });
+
+        replayButton.addEventListener('click', () => {
+            location.reload();
+        });
     </script>
 </body>
 </html>
