@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Exploration</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .tech-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .tech-card {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .tech-card::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 5px;
+            background: #3498db;
+        }
+        .back-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="tech-container">
+        <a href="/" class="back-btn">← Back</a>
+        <h1>Technologies I'm Exploring</h1>
+        <div class="tech-card">
+            <h3>Artificial Intelligence</h3>
+            <p>Exploring machine learning and neural networks</p>
+        </div>
+        <div class="tech-card">
+            <h3>Blockchain</h3>
+            <p>Understanding decentralized applications and smart contracts</p>
+        </div>
+        <div class="tech-card">
+            <h3>IoT</h3>
+            <p>Working with embedded systems and connected devices</p>
+        </div>
+    </div>
+</body>
+</html>

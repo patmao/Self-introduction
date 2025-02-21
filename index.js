@@ -14,6 +14,14 @@ app.get('/game', (req, res) => {
   res.sendFile(path.join(__dirname, 'game.html'));
 });
 
+app.get('/scifi', (req, res) => {
+  res.sendFile(path.join(__dirname, 'scifi.html'));
+});
+
+app.get('/tech', (req, res) => {
+  res.sendFile(path.join(__dirname, 'tech.html'));
+});
+
 app.listen(3000, '0.0.0.0', () => {
   console.log('Server running on port 3000');
 });
