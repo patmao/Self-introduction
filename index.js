@@ -4,6 +4,10 @@ const path = require('path');
 const app = express();
 
 app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'aboutMe.html'));
+});
+
+app.get('/game', (req, res) => {
   res.sendFile(path.join(__dirname, 'game.html'));
 });
 
